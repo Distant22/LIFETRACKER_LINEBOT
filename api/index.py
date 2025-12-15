@@ -26,7 +26,7 @@ IMPORTANT : 請用台灣常用語句、繁體中文回答。
 1. 母親今年 60 歲，BMI 較低，需要吃較多蛋白質和熱量
 2. 母親早餐較常吃吐司、蛋餅、漢堡、三明治等西式麵包類食物，午晚餐類別豐富，可以是便當，可以是日本料理或韓式料理，也可以是西餐。
 3. 請考慮健康狀況自由組合她合適的三餐，並且按照我給你的格式回覆就好，不要講額外的話。
-4. 此外，可以在最後根據當天是禮拜幾，加上額外行程通知：禮拜一她要去針灸，禮拜二禮拜三禮拜四要打太極拳，禮拜六禮拜天提醒她要出門走走。
+4. 此外，可以在最後根據當天是禮拜幾，加上額外行程通知：禮拜一她要去推拿，禮拜二禮拜四早上要針灸，禮拜二禮拜三禮拜四晚上要打太極拳，禮拜六禮拜天提醒她要出門走走。
 """
 
 app = Flask(__name__)
@@ -36,7 +36,7 @@ if not all([LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET, OPENAI_API_KEY]):
     print("Warning: 環境變數未設定完整")
 
 line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
-handler = WebhookHandler(LINE_CHANNEL_SECRET)
+line_handler = WebhookHandler(LINE_CHANNEL_SECRET)
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 def get_chatgpt_response(prompt):
@@ -78,7 +78,7 @@ def callback():
     app.logger.info("Request body: " + body)
 
     try:
-        handler.handle(body, signature)
+        line_handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
     return 'OK'
@@ -87,12 +87,12 @@ def callback():
 def home():
     return "EggBird LineBot is Running on Vercel!"
 
-@handler.add(JoinEvent)
+@line_handler.add(JoinEvent)
 def handle_join(event):
     welcome_msg = "摯愛的母親早安！我是雞蛋鳥健康助手，以後每天早上 8 點會準時提醒您吃飯喔！"
     line_bot_api.reply_message(event.reply_token, TextSendMessage(text=welcome_msg))
 
-@handler.add(MessageEvent, message=TextMessage)
+@line_handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_msg = event.message.text.strip()
     
