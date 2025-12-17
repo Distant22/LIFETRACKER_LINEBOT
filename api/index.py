@@ -17,6 +17,8 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 # 機器人觸發關鍵字
 BOT_TRIGGER_KEYWORD = "@雞蛋鳥健康助手"
+# 如果要指定目標群組，可以用環境變數覆蓋；預設為目標群組 ID
+TARGET_GROUP_ID = os.environ.get('TARGET_GROUP_ID', 'Ce3d05524c4686716f07102e097c29319')
 
 app = Flask(__name__)
 
@@ -60,7 +62,7 @@ def get_daily_prompt():
     # 4. 組合最終 Prompt
     prompt = f"""
 請在 200 字以內給我母親今天的三餐飲食建議。
-你的回覆格式要是「摯愛的母親早安！雞蛋鳥今天建議你早餐吃XXX，午餐吃XXX，晚餐吃XXX，保持健康愉快好心情，就跟我吃杏仁一樣！」。
+你的回覆格式要是「雞蛋鳥今天建議你早餐吃XXX，午餐吃XXX，晚餐吃XXX，保持健康愉快好心情，就跟我吃杏仁一樣！」。
 
 請根據以下條件給出建議：
 IMPORTANT : 請用台灣常用語句、繁體中文回答。
@@ -97,8 +99,12 @@ def cron_trigger():
     
     ai_msg = get_chatgpt_response(todays_prompt)
     try:
-        line_bot_api.broadcast(TextSendMessage(text=f"早安！\n{ai_msg}"))
-        return "Morning Broadcast Sent!", 200
+        # 只推播到指定的群組（避免對個人或所有用戶廣播）
+        if not TARGET_GROUP_ID:
+            raise ValueError("TARGET_GROUP_ID 未設定，無法發送訊息")
+
+        line_bot_api.push_message(TARGET_GROUP_ID, TextSendMessage(text=f"披卡哺，摯愛的母親早安！\n{ai_msg}"))
+        return f"Morning Message Sent to group {TARGET_GROUP_ID}!", 200
     except Exception as e:
         print(f"Error: {e}")
         return f"Error: {e}", 500
