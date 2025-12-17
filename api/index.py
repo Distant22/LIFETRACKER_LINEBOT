@@ -1,5 +1,7 @@
 import os
 import sys
+import json
+import logging
 from datetime import datetime, timedelta, timezone
 
 from flask import Flask, request, abort
@@ -17,6 +19,9 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 BOT_TRIGGER_KEYWORD = "@雞蛋鳥健康助手"
 
 app = Flask(__name__)
+
+# 設定基本日誌等級
+logging.basicConfig(level=logging.INFO)
 
 # 檢查變數
 if not all([LINE_CHANNEL_ACCESS_TOKEN, LINE_CHANNEL_SECRET, OPENAI_API_KEY]):
@@ -112,6 +117,26 @@ def callback():
 
 @line_handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    # 先記錄格式化的 Request Body 與來源資訊，方便查是哪個群組/使用者發送
+    try:
+        body_json = request.get_json(silent=True)
+        formatted_body = json.dumps(body_json, ensure_ascii=False, indent=2)
+    except Exception:
+        formatted_body = "<could not parse request body>"
+
+    source = getattr(event, "source", None)
+    source_type = getattr(source, "type", None) if source else None
+    group_id = getattr(source, "group_id", None) if source else None
+    user_id = getattr(source, "user_id", None) if source else None
+
+    logging.info(
+        "LINE webhook received. source_type=%s, group_id=%s, user_id=%s\nRequest Body:\n%s",
+        source_type,
+        group_id,
+        user_id,
+        formatted_body,
+    )
+
     user_msg = event.message.text.strip()
     
     # 測試功能：手動測試時，也會自動帶入「今天的星期」邏輯
