@@ -45,27 +45,30 @@ def get_daily_prompt():
     # 3. 根據星期幾決定「額外行程」
     schedule_text = ""
     if weekday == 0:   # 週一
-        schedule_text = "今天是禮拜一，提醒媽媽今天要去推拿。"
+        schedule_text = "今天要記得去推拿，批卡哺！"
     elif weekday == 1: # 週二
-        schedule_text = "今天是禮拜二，提醒媽媽早上要針灸，晚上要打太極拳。"
+        schedule_text = "今天要記得早上針灸，晚上打太極拳，批卡哺！"
     elif weekday == 2: # 週三
-        schedule_text = "今天是禮拜三，提醒媽媽晚上要打太極拳。"
+        schedule_text = "今天要記得去打太極拳，批卡哺！"
     elif weekday == 3: # 週四
-        schedule_text = "今天是禮拜四，提醒媽媽早上要針灸，晚上要打太極拳。"
+        schedule_text = "今天要記得早上針灸，晚上打太極拳，批卡哺！"
     elif weekday == 4: # 週五
-        schedule_text = "今天是禮拜五，又是開心的一天！"
+        schedule_text = "今天又是開心的一天，批卡哺！"
     elif weekday == 5: # 週六
-        schedule_text = "今天是禮拜六，週末愉快！提醒媽媽要出門走走，曬曬太陽。"
+        schedule_text = "今天是禮拜六，要出門走走，玩好玩的。批卡哺！"
     elif weekday == 6: # 週日
-        schedule_text = "今天是禮拜天，提醒媽媽要出門走走，放鬆心情。"
+        schedule_text = "今天是禮拜天，該吃個大餐，批卡哺！"
 
     # 4. 組合最終 Prompt
     prompt = f"""
 請在 200 字以內給我母親今天的三餐飲食建議。
 你的回覆格式要如下：
---雞蛋鳥今天提供的飲食建議--
+【 雞蛋鳥今天提供的飲食建議 】
+
 早餐：XXX
+
 午餐：XXX
+
 晚餐：XXX。
 --------------
 
@@ -73,7 +76,7 @@ def get_daily_prompt():
 IMPORTANT : 請用台灣常用語句、繁體中文回答。簡短就好！
 1. 母親今年 60 歲，BMI 較低，需要吃較多蛋白質和熱量
 2. 母親早餐較常吃吐司、蛋餅、漢堡、三明治等西式麵包類食物，午晚餐類別豐富，可以是便當，可以是日本料理或韓式料理，也可以是西餐。
-3. 請考慮健康狀況自由組合她合適的三餐，並且按照我給你的格式回覆就好，不要講額外的話。
+3. 請考慮健康狀況自由組合她合適的三餐，並且按照我給你的格式回覆就好，簡短就好，不要講額外的話。
 4. 此外，請務必在最後加上這句行程提醒：「{schedule_text}」
 """
     return prompt
